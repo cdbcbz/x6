@@ -144,7 +144,7 @@ function writeJSONFile(filename, data) {
 }
 async function checkUpdate(scriptName) {
   const request = {
-    url: `https://raw.githubusercontent.com/fwktls/x6/master/version.json`,
+    url: `https://gitcode.net/u013276346/x6/-/raw/master/version.json`,
   };
   let response = await Get(request);
   let versionData = response;
