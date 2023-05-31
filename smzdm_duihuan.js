@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-20 09:45:07
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-05-30 20:37:53
+ @LastEditTime: 2023-05-31 22:07:26
  @FilePath: \mangfu\smzdm_duihuan.js
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -130,7 +130,7 @@ async function getDuihuanList(cookie) {
     if (nowSessions.length > 0) {
       let list = data.duihuan_list[0];
       let filteredData = list.filter(
-        (item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword + "礼品卡")
+        (item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword)
       );
       if (filteredData.length > 0) {
         let sortedData = filteredData.sort((a, b) => b.silver - a.silver);
