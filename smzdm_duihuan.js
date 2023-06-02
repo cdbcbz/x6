@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-20 09:45:07
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-06-02 21:05:56
+ @LastEditTime: 2023-06-02 21:09:56
  @FilePath: \mangfu\smzdm_duihuan.js
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -15,7 +15,7 @@ const Env = require("./common/Env");
 const $ = new Env("什么值得买_限时兑换");
 const crypto = require("crypto");
 const fs = require("fs");
-const version = "1.0.3";
+const version = "1.0.4";
 const filePath = "orders.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
