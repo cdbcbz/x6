@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-20 09:45:07
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-05-31 22:07:26
+ @LastEditTime: 2023-06-02 21:05:56
  @FilePath: \mangfu\smzdm_duihuan.js
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -89,7 +89,7 @@ async function run() {
               let smzdmid = cookieArr[i].split(/smzdm_id=(.+?);/)[1];
               modifyAccount(accounts, smzdmid, "add", orderid);
               writeJSONFile(filePath, accounts);
-              log(`账号[${i + 1}]兑换成功: 订单号[${orderid}] 状态[订单审核中...]`);
+              log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid)}] 状态[订单审核中...]`);
             } else {
               log(`账号[${i + 1}]兑换成功: 卡密[${PIN}]`);
             }
@@ -129,9 +129,7 @@ async function getDuihuanList(cookie) {
     let nowSessions = data.now_sessions;
     if (nowSessions.length > 0) {
       let list = data.duihuan_list[0];
-      let filteredData = list.filter(
-        (item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword)
-      );
+      let filteredData = list.filter((item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword));
       if (filteredData.length > 0) {
         let sortedData = filteredData.sort((a, b) => b.silver - a.silver);
         return sortedData;
@@ -410,13 +408,13 @@ function modifyAccount(accounts, smzdmid, action, order) {
   if (action === "add") {
     if (account) {
       account.orders.push(order);
-      console.log(`订单号 ${order} 已添加到ID:${smzdmid}`);
+      console.log(`订单号 ${maskOrderNumber(order)} 已添加到ID:${smzdmid}`);
     } else {
       accounts.push({
         smzdmid,
         orders: [order],
       });
-      console.log(`ID:${smzdmid} 已创建，并添加订单号:${order}`);
+      console.log(`ID:${smzdmid} 已创建，并添加订单号:${maskOrderNumber(order)}`);
     }
   } else if (action === "delete") {
     if (account) {
@@ -424,9 +422,9 @@ function modifyAccount(accounts, smzdmid, action, order) {
         const index = account.orders.indexOf(order);
         if (index !== -1) {
           account.orders.splice(index, 1);
-          console.log(`订单号${order}已从ID:${smzdmid}中删除`);
+          console.log(`订单号${maskOrderNumber(order)}已从ID:${smzdmid}中删除`);
         } else {
-          console.log(`ID:${smzdmid}中不存在订单号${order}`);
+          console.log(`ID:${smzdmid}中不存在订单号${maskOrderNumber(order)}`);
         }
       } else {
         const index = accounts.indexOf(account);
@@ -439,4 +437,9 @@ function modifyAccount(accounts, smzdmid, action, order) {
   } else {
     console.log(`无效的操作：${action}`);
   }
+}
+function maskOrderNumber(orderNumber, placeholder = "X", start = 9, end = 20) {
+  const visiblePart = orderNumber.substring(start, end);
+  const maskedPart = placeholder.repeat(end - start);
+  return orderNumber.replace(visiblePart, maskedPart);
 }
