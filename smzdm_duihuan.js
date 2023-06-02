@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-20 09:45:07
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-06-02 21:09:56
+ @LastEditTime: 2023-06-02 21:12:12
  @FilePath: \mangfu\smzdm_duihuan.js
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -438,7 +438,7 @@ function modifyAccount(accounts, smzdmid, action, order) {
     console.log(`无效的操作：${action}`);
   }
 }
-function maskOrderNumber(orderNumber, placeholder = "X", start = 9, end = 20) {
+function maskOrderNumber(orderNumber, placeholder = "X", start = 9, end = 19) {
   const visiblePart = orderNumber.substring(start, end);
   const maskedPart = placeholder.repeat(end - start);
   return orderNumber.replace(visiblePart, maskedPart);
