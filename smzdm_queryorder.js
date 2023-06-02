@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-26 22:03:55
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-06-02 21:03:50
+ @LastEditTime: 2023-06-02 21:10:11
  @FilePath: \mangfu\smzdm_queryorder.js
 
  cron:0 7,12,21 * * *
@@ -10,7 +10,7 @@
 const Env = require("./common/Env");
 const $ = new Env("什么值得买_订单查询");
 const fs = require("fs");
-const version = "1.0.0";
+const version = "1.0.1";
 const filePath = "orders.json";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
 const Notify = require("./sendNotify");
