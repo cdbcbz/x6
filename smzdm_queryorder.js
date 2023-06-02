@@ -2,7 +2,7 @@
  @Author: x6
  @Date: 2023-05-26 22:03:55
  @LastEditors: Please set LastEditors
- @LastEditTime: 2023-06-02 21:10:11
+ @LastEditTime: 2023-06-02 21:11:54
  @FilePath: \mangfu\smzdm_queryorder.js
 
  cron:0 7,12,21 * * *
@@ -196,7 +196,7 @@ function modifyAccount(accounts, smzdmid, action, order) {
     console.log(`无效的操作：[${action}]`);
   }
 }
-function maskOrderNumber(orderNumber, placeholder = "X", start = 9, end = 20) {
+function maskOrderNumber(orderNumber, placeholder = "X", start = 9, end = 19) {
   const visiblePart = orderNumber.substring(start, end);
   const maskedPart = placeholder.repeat(end - start);
   return orderNumber.replace(visiblePart, maskedPart);
