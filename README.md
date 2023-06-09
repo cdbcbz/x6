@@ -2,8 +2,8 @@
 
 * @Author: x6
 * @Date: 2023-02-04 19:13:53
- * @LastEditors: x6
- * @LastEditTime: 2023-05-02 20:51:48
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2023-06-09 10:45:59
  * @FilePath: \mangfu\README.md
     -->
 
@@ -16,7 +16,7 @@
 github
 
 ```js
-ql repo https://github.com/fwktls/x6.git "" "qlconfig.js|cookie|common" "common"
+ql repo https://github.com/fwktls/x6.git "" "cookie|common" "common"
 ```
 
 # QuantumultX  食用说明
