@@ -1,8 +1,10 @@
 /*
  @Author: x6
  @Date: 2023-06-08 17:47:04
- @LastEditTime: 2023-06-09 10:35:14
- cron:0 10 * * 1
+ @LastEditTime: 2023-06-09 10:39:52
+ cron:0 10 * * *
+
+ ps:领取奖励可能会出现失败的情况，不用慌，今天没领到明天继续领，或者自己再执行一次脚本。
  */
 const Env = require("./common/Env");
 const $ = new Env("什么值得买_连续签到奖励");
@@ -57,7 +59,7 @@ async function GetRewardList(cookie) {
       Accept: "application/json, text/plain, */*",
       "User-Agent": "smzdm_android_V10.4.26 rv:866 (Redmi Note 3;Android10.0;zh)smzdmapp",
       "Content-Type": "application/x-www-form-urlencoded",
-      Origin: "https://h5smzdm.com",
+      Origin: "https://h5.smzdm.com",
       "X-Requested-With": "com.smzdm.client.android",
       "Sec-Fetch-Site": "same-origin",
       "Sec-Fetch-Mode": "cors",
@@ -110,7 +112,7 @@ async function sendReward(cookie, id) {
       Accept: "application/json, text/plain, */*",
       "User-Agent": "smzdm_android_V10.4.26 rv:866 (Redmi Note 3;Android10.0;zh)smzdmapp",
       "Content-Type": "application/x-www-form-urlencoded",
-      Origin: "https://h5smzdm.com",
+      Origin: "https://h5.smzdm.com",
       "X-Requested-With": "com.smzdm.client.android",
       "Sec-Fetch-Site": "same-origin",
       "Sec-Fetch-Mode": "cors",
