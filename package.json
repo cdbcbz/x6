@@ -3,7 +3,6 @@
     "cheerio": "^1.0.0-rc.12",
     "crypto-js": "^4.1.1",
     "got": "^11.8.6",
-    "jsdom": "^21.1.0",
     "puppeteer": "^19.11.1"
   },
   "devDependencies": {
