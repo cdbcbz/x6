@@ -1,19 +1,4 @@
-<!--
-
-* @Author: x6
-* @Date: 2023-02-04 19:13:53
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2023-06-09 10:45:59
- * @FilePath: \mangfu\README.md
-    -->
-
-# 自用青龙脚本库
-
-杂七杂八的脚本
-
 # 青龙订阅
-
-github
 
 ```js
 ql repo https://github.com/fwktls/x6.git "" "cookie|common" "common"
