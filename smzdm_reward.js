@@ -1,7 +1,7 @@
 /*
  @Author: x6
  @Date: 2023-06-08 17:47:04
- @LastEditTime: 2023-06-11 10:09:07
+ @LastEditTime: 2023-06-11 11:51:09
  cron:0 10 * * *
 
  ps:领取奖励可能会出现失败的情况，不用慌，今天没领到明天继续领，或者自己再执行一次脚本。
@@ -84,19 +84,14 @@ async function GetRewardList(cookie) {
 }
 function processPacks(packs) {
   const processedPacks = [];
-
-  // 处理每个礼包
   packs.forEach((pack) => {
-    // 过滤掉 is_real_filter 不等于 1 的礼包
     if (pack.is_real_filter !== 1) {
       return;
     }
-
     const processedPack = {
       packId: pack.pack_id,
       packName: pack.pack_name,
     };
-
     processedPacks.push(processedPack);
   });
 
