@@ -1,11 +1,4 @@
 /*
- @Author: x6
- @Date: 2023-05-13 21:52:06
- @LastEditors: x6
- @LastEditTime: 2023-05-14 12:36:27
- @FilePath: \mangfu\sendNotify.js
- */
-/*
  * @Author: lxk0301 https://gitee.com/lxk0301
  * @Date: 2020-08-19 16:12:40
  * @Last Modified by: whyour
