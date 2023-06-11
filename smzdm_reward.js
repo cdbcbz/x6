@@ -1,7 +1,7 @@
 /*
  @Author: x6
  @Date: 2023-06-08 17:47:04
- @LastEditTime: 2023-06-09 10:39:52
+ @LastEditTime: 2023-06-11 10:09:07
  cron:0 10 * * *
 
  ps:领取奖励可能会出现失败的情况，不用慌，今天没领到明天继续领，或者自己再执行一次脚本。
@@ -12,7 +12,7 @@ const fs = require("fs");
 const version = "1.0.0";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
 const Notify = require("./sendNotify");
-const Isnotify = ($.isNode() ? process.env.isnotify : $.getdata("isnotify")) || "true"; //是否开启推送 false关闭 true开启
+const Isnotify = ($.isNode() ? process.env.isnotify : $.getdata("isnotify")) || "false"; //是否开启推送 false关闭 true开启
 let msg = "";
 !(async () => {
   await checkUpdate($.name);
