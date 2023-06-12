@@ -1,9 +1,6 @@
 test
 node_modules
 .vscode
-node_modules
 demo.js
 sendNotify.js
 orders.json
-
-.husky
