@@ -1,9 +1,8 @@
 /*
  @Author: x6
  @Date: 2023-05-26 22:03:55
- @LastEditors: Please set LastEditors
  @LastEditTime: 2023-06-02 21:11:54
- @FilePath: \mangfu\smzdm_queryorder.js
+
 
  cron:0 7,12,21 * * *
  */
