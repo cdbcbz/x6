@@ -1,9 +1,7 @@
 /*
  @Author: x6
  @Date: 2023-03-14 20:53:54
- @LastEditors: x6
- @LastEditTime: 2023-03-14 20:53:54
- @FilePath: \mangfu\common\Env.js
+ @LastEditTime: 2023-06-12 20:19:25
  */
 function Env(t, e) {
   class s {
@@ -108,8 +106,7 @@ function Env(t, e) {
     loaddata() {
       if (!this.isNode()) return {};
       {
-        (this.fs = this.fs ? this.fs : require("fs")),
-          (this.path = this.path ? this.path : require("path"));
+        (this.fs = this.fs ? this.fs : require("fs")), (this.path = this.path ? this.path : require("path"));
         const t = this.path.resolve(this.dataFile),
           e = this.path.resolve(process.cwd(), this.dataFile),
           s = this.fs.existsSync(t),
@@ -127,18 +124,13 @@ function Env(t, e) {
     }
     writedata() {
       if (this.isNode()) {
-        (this.fs = this.fs ? this.fs : require("fs")),
-          (this.path = this.path ? this.path : require("path"));
+        (this.fs = this.fs ? this.fs : require("fs")), (this.path = this.path ? this.path : require("path"));
         const t = this.path.resolve(this.dataFile),
           e = this.path.resolve(process.cwd(), this.dataFile),
           s = this.fs.existsSync(t),
           i = !s && this.fs.existsSync(e),
           r = JSON.stringify(this.data);
-        s
-          ? this.fs.writeFileSync(t, r)
-          : i
-          ? this.fs.writeFileSync(e, r)
-          : this.fs.writeFileSync(t, r);
+        s ? this.fs.writeFileSync(t, r) : i ? this.fs.writeFileSync(e, r) : this.fs.writeFileSync(t, r);
       }
     }
     lodash_get(t, e, s) {
@@ -154,10 +146,7 @@ function Env(t, e) {
           (e
             .slice(0, -1)
             .reduce(
-              (t, s, i) =>
-                Object(t[s]) === t[s]
-                  ? t[s]
-                  : (t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {}),
+              (t, s, i) => (Object(t[s]) === t[s] ? t[s] : (t[s] = Math.abs(e[i + 1]) >> 0 == +e[i + 1] ? [] : {})),
               t
             )[e[e.length - 1]] = s),
           t);
@@ -208,10 +197,7 @@ function Env(t, e) {
         : this.isQuanX()
         ? $prefs.setValueForKey(t, e)
         : this.isNode()
-        ? ((this.data = this.loaddata()),
-          (this.data[e] = t),
-          this.writedata(),
-          !0)
+        ? ((this.data = this.loaddata()), (this.data[e] = t), this.writedata(), !0)
         : (this.data && this.data[e]) || null;
     }
     initGotEnv(t) {
@@ -220,24 +206,19 @@ function Env(t, e) {
         (this.ckjar = this.ckjar ? this.ckjar : new this.cktough.CookieJar()),
         t &&
           ((t.headers = t.headers ? t.headers : {}),
-          void 0 === t.headers.Cookie &&
-            void 0 === t.cookieJar &&
-            (t.cookieJar = this.ckjar));
+          void 0 === t.headers.Cookie && void 0 === t.cookieJar && (t.cookieJar = this.ckjar));
     }
     get(t, e = () => {}) {
-      t.headers &&
-        (delete t.headers["Content-Type"], delete t.headers["Content-Length"]),
+      t.headers && (delete t.headers["Content-Type"], delete t.headers["Content-Length"]),
         this.isSurge() || this.isLoon()
           ? (this.isSurge() &&
               this.isNeedRewrite &&
-              ((t.headers = t.headers || {}),
-              Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
+              ((t.headers = t.headers || {}), Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
             $httpClient.get(t, (t, s, i) => {
               !t && s && ((s.body = i), (s.statusCode = s.status)), e(t, s, i);
             }))
           : this.isQuanX()
-          ? (this.isNeedRewrite &&
-              ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
+          ? (this.isNeedRewrite && ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
             $task.fetch(t).then(
               (t) => {
                 const { statusCode: s, statusCode: i, headers: r, body: o } = t;
@@ -251,11 +232,8 @@ function Env(t, e) {
               .on("redirect", (t, e) => {
                 try {
                   if (t.headers["set-cookie"]) {
-                    const s = t.headers["set-cookie"]
-                      .map(this.cktough.Cookie.parse)
-                      .toString();
-                    s && this.ckjar.setCookieSync(s, null),
-                      (e.cookieJar = this.ckjar);
+                    const s = t.headers["set-cookie"].map(this.cktough.Cookie.parse).toString();
+                    s && this.ckjar.setCookieSync(s, null), (e.cookieJar = this.ckjar);
                   }
                 } catch (t) {
                   this.logErr(t);
@@ -263,12 +241,7 @@ function Env(t, e) {
               })
               .then(
                 (t) => {
-                  const {
-                    statusCode: s,
-                    statusCode: i,
-                    headers: r,
-                    body: o,
-                  } = t;
+                  const { statusCode: s, statusCode: i, headers: r, body: o } = t;
                   e(null, { status: s, statusCode: i, headers: r, body: o }, o);
                 },
                 (t) => {
@@ -288,15 +261,13 @@ function Env(t, e) {
       )
         this.isSurge() &&
           this.isNeedRewrite &&
-          ((t.headers = t.headers || {}),
-          Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
+          ((t.headers = t.headers || {}), Object.assign(t.headers, { "X-Surge-Skip-Scripting": !1 })),
           $httpClient.post(t, (t, s, i) => {
             !t && s && ((s.body = i), (s.statusCode = s.status)), e(t, s, i);
           });
       else if (this.isQuanX())
         (t.method = "POST"),
-          this.isNeedRewrite &&
-            ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
+          this.isNeedRewrite && ((t.opts = t.opts || {}), Object.assign(t.opts, { hints: !1 })),
           $task.fetch(t).then(
             (t) => {
               const { statusCode: s, statusCode: i, headers: r, body: o } = t;
@@ -329,32 +300,17 @@ function Env(t, e) {
         "q+": Math.floor((new Date().getMonth() + 3) / 3),
         S: new Date().getMilliseconds(),
       };
-      /(y+)/.test(t) &&
-        (t = t.replace(
-          RegExp.$1,
-          (new Date().getFullYear() + "").substr(4 - RegExp.$1.length)
-        ));
+      /(y+)/.test(t) && (t = t.replace(RegExp.$1, (new Date().getFullYear() + "").substr(4 - RegExp.$1.length)));
       for (let s in e)
         new RegExp("(" + s + ")").test(t) &&
-          (t = t.replace(
-            RegExp.$1,
-            1 == RegExp.$1.length
-              ? e[s]
-              : ("00" + e[s]).substr(("" + e[s]).length)
-          ));
+          (t = t.replace(RegExp.$1, 1 == RegExp.$1.length ? e[s] : ("00" + e[s]).substr(("" + e[s]).length)));
       return t;
     }
     msg(e = t, s = "", i = "", r) {
       const o = (t) => {
         if (!t) return t;
         if ("string" == typeof t)
-          return this.isLoon()
-            ? t
-            : this.isQuanX()
-            ? { "open-url": t }
-            : this.isSurge()
-            ? { url: t }
-            : void 0;
+          return this.isLoon() ? t : this.isQuanX() ? { "open-url": t } : this.isSurge() ? { url: t } : void 0;
         if ("object" == typeof t) {
           if (this.isLoon()) {
             let e = t.openUrl || t.url || t["open-url"],
@@ -379,20 +335,12 @@ function Env(t, e) {
             : this.isQuanX() && $notify(e, s, i, o(r))),
         !this.isMuteLog)
       ) {
-        let t = [
-          "",
-          "==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3==============",
-        ];
-        t.push(e),
-          s && t.push(s),
-          i && t.push(i),
-          console.log(t.join("\n")),
-          (this.logs = this.logs.concat(t));
+        let t = ["", "==============\ud83d\udce3\u7cfb\u7edf\u901a\u77e5\ud83d\udce3=============="];
+        t.push(e), s && t.push(s), i && t.push(i), console.log(t.join("\n")), (this.logs = this.logs.concat(t));
       }
     }
     log(...t) {
-      t.length > 0 && (this.logs = [...this.logs, ...t]),
-        console.log(t.join(this.logSeparator));
+      t.length > 0 && (this.logs = [...this.logs, ...t]), console.log(t.join(this.logSeparator));
     }
     logErr(t, e) {
       const s = !this.isSurge() && !this.isQuanX() && !this.isLoon();
@@ -406,10 +354,7 @@ function Env(t, e) {
     done(t = {}) {
       const e = new Date().getTime(),
         s = (e - this.startTime) / 1e3;
-      this.log(
-        "",
-        `\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${s} \u79d2`
-      ),
+      this.log("", `\ud83d\udd14${this.name}, \u7ed3\u675f! \ud83d\udd5b ${s} \u79d2`),
         this.log(),
         (this.isSurge() || this.isQuanX() || this.isLoon()) && $done(t);
     }
