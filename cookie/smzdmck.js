@@ -10,6 +10,7 @@ let time = new Date();
     var result = await SetEnvs(ql, token, $.name, Cookie);
 
     $notify("什么值得买", $.name, result);
+    
   }
 })()
   .catch((err) => $.logErr(err))
