@@ -1,8 +1,8 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-17 10:10:55
- cron:0 10 * * *
+ @LastEditTime: 2023-06-17 10:35:20
+ cron:59 59 9 * * *
  */
 
 const Env = require("./common/Env");
