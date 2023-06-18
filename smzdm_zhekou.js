@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-18 09:22:29
+ @LastEditTime: 2023-06-18 10:06:28
  cron:59 59 9 * * *
  */
 
@@ -53,9 +53,7 @@ async function run() {
       let userSilver = await getUserSilver(cookieArr[i]);
       log(`账号[${i + 1}] 碎银余额: [${userSilver}]`);
       if (userSilver >= data.data.sku_list[0].specs_price[0].deduct_price) {
-        var Total_num =
-          data.data.sku_list[0].specs_price[0].total_num - data.data.sku_list[0].specs_price[0].pickup_total;
-        log(`账号[${i + 1}] 正在兑换: [${data.data.sku_list[0].sku_name}]库存:${Total_num}`);
+        log(`账号[${i + 1}] 正在兑换: ${data.data.sku_list[0].sku_name}`);
         if (Total_num === 0) {
           continue;
         }
