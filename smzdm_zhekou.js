@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-17 10:35:20
+ @LastEditTime: 2023-06-18 09:22:29
  cron:59 59 9 * * *
  */
 
@@ -45,6 +45,7 @@ async function run() {
       var today = new Date();
       today.setHours(10, 0, 0, 0);
       if (startDateTime.getTime() === today.getTime()) {
+        log(`兑换时间:${data.data.start_time}`);
         break;
       }
     }
