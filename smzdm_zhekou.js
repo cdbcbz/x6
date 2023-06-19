@@ -1,8 +1,8 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-20 06:50:03
- cron:59 59 9,16 * * *
+ @LastEditTime: 2023-06-20 06:57:13
+ cron:59 59 7,9,15 * * *
  */
 
 const Env = require("./common/Env");
@@ -11,11 +11,15 @@ const crypto = require("crypto");
 const fs = require("fs");
 const version = "1.0.1";
 const filePath = "orders.json";
-const zhekouPath = "zhekou.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
 const Notify = require("./sendNotify");
 const Isnotify = ($.isNode() ? process.env.isnotify : $.getdata("isnotify")) || "true"; //是否开启推送 false关闭 true开启
+const currentDate = new Date();
+const year = currentDate.getFullYear();
+const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+const day = String(currentDate.getDate()).padStart(2, "0");
+const zhekouPath = `zhekou-${year}${month}${day}.json`;
 let msg = "";
 
 !(async () => {
@@ -109,7 +113,7 @@ async function run() {
       }
       if (data.data.good_title.includes("折兑换】京东商城电子礼品卡")) {
         zhekouarr.push(data.data.spu_id);
-        log(`爬取到: ${data.data.good_title} `);
+        log(`${data.data.sku_list[0].sku_name},兑换时间:${data.data.start_time}`);
       }
     }
     writeJSONFile(zhekouPath, zhekouarr);
