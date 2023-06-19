@@ -2,7 +2,7 @@
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
  @LastEditTime: 2023-06-20 06:50:03
- cron:59 59 9 * * *
+ cron:59 59 9,16 * * *
  */
 
 const Env = require("./common/Env");
