@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-19 21:55:44
+ @LastEditTime: 2023-06-19 21:58:47
  cron:59 59 9 * * *
  */
 
@@ -9,7 +9,7 @@ const Env = require("./common/Env");
 const $ = new Env("什么值得买_折扣兑换");
 const crypto = require("crypto");
 const fs = require("fs");
-const version = "1.0.0";
+const version = "1.0.1";
 const filePath = "orders.json";
 const zhekouPath = "zhekou.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
