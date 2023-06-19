@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-19 21:58:47
+ @LastEditTime: 2023-06-20 06:50:03
  cron:59 59 9 * * *
  */
 
@@ -39,7 +39,7 @@ async function run() {
     let spuId = readJSONFile(zhekouPath) || [];
     let data = null;
     let foundMatchingDate = false;
-    var giftList = "";
+    var giftList = "\n";
     for (let i = 0; i < spuId.length; i++) {
       let DuihuanInfo = await getzhekouInfo(cookieArr[0], spuId[i]);
       data = JSON.parse(DuihuanInfo.body);
@@ -57,7 +57,7 @@ async function run() {
     if (!foundMatchingDate) {
       // 执行未找到满足条件的日期的逻辑
       log("当前无兑换礼品，兑换列表:\n");
-      console.log(giftList);
+      log(giftList);
     } else {
       for (let i = 0; i < cookieArr.length; i++) {
         let userSilver = await getUserSilver(cookieArr[i]);
