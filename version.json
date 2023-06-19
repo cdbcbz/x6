@@ -18,8 +18,8 @@
       ,
       {
         "name": "什么值得买_折扣兑换",
-        "version": "1.0.0",
-        "releaseNotes": "新增脚本"
+        "version": "1.0.1",
+        "releaseNotes": "修复一些bug。"
       }
     ]
   }
