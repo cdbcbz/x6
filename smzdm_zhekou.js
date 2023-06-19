@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-18 10:06:28
+ @LastEditTime: 2023-06-19 21:55:44
  cron:59 59 9 * * *
  */
 
@@ -37,52 +37,61 @@ async function run() {
   log(`当前共有${cookieArr.length}个账号`);
   if (fs.existsSync(zhekouPath)) {
     let spuId = readJSONFile(zhekouPath) || [];
-    var data = [];
+    let data = null;
+    let foundMatchingDate = false;
+    var giftList = "";
     for (let i = 0; i < spuId.length; i++) {
       let DuihuanInfo = await getzhekouInfo(cookieArr[0], spuId[i]);
       data = JSON.parse(DuihuanInfo.body);
       var startDateTime = new Date(data.data.start_time);
       var today = new Date();
       today.setHours(10, 0, 0, 0);
+      giftList += `${data.data.sku_list[0].sku_name},兑换时间:${data.data.start_time}\n`;
       if (startDateTime.getTime() === today.getTime()) {
         log(`兑换时间:${data.data.start_time}`);
+        foundMatchingDate = true;
         break;
       }
     }
-    for (let i = 0; i < cookieArr.length; i++) {
-      let userSilver = await getUserSilver(cookieArr[i]);
-      log(`账号[${i + 1}] 碎银余额: [${userSilver}]`);
-      if (userSilver >= data.data.sku_list[0].specs_price[0].deduct_price) {
-        log(`账号[${i + 1}] 正在兑换: ${data.data.sku_list[0].sku_name}`);
-        if (Total_num === 0) {
-          continue;
-        }
-        let orderid = await exchangeGiftCard(cookieArr[i], [
-          data.data.sku_list[0].specs_price[0].sku_id,
-          data.data.sku_list[0].specs_price[0].spu_id,
-          data.data.sku_list[0].specs_price[0].id,
-        ]);
-        if (orderid.code === -1) {
-          log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
-        } else if (orderid.code === -2) {
-          log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
-        } else {
-          let PIN = await getOrderInfo(cookieArr[i], orderid.data);
-          if (PIN === -1) {
-            if (!fs.existsSync(filePath)) {
-              writeJSONFile(filePath, []);
-            }
-            let accounts = readJSONFile(filePath) || [];
-            let smzdmid = cookieArr[i].split(/smzdm_id=(.+?);/)[1];
-            modifyAccount(accounts, smzdmid, "add", orderid.data);
-            writeJSONFile(filePath, accounts);
-            log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid.data)}] 状态[订单审核中...]`);
+
+    if (!foundMatchingDate) {
+      // 执行未找到满足条件的日期的逻辑
+      log("当前无兑换礼品，兑换列表:\n");
+      console.log(giftList);
+    } else {
+      for (let i = 0; i < cookieArr.length; i++) {
+        let userSilver = await getUserSilver(cookieArr[i]);
+        log(`账号[${i + 1}] 碎银余额: [${userSilver}]`);
+        if (userSilver >= data.data.sku_list[0].specs_price[0].deduct_price) {
+          log(`账号[${i + 1}] 正在兑换: ${data.data.sku_list[0].sku_name}`);
+
+          let orderid = await exchangeGiftCard(cookieArr[i], [
+            data.data.sku_list[0].specs_price[0].sku_id,
+            data.data.sku_list[0].specs_price[0].spu_id,
+            data.data.sku_list[0].specs_price[0].id,
+          ]);
+          if (orderid.code === -1) {
+            log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
+          } else if (orderid.code === -2) {
+            log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
           } else {
-            log(`账号[${i + 1}]兑换成功: 卡密[${PIN}]`);
+            let PIN = await getOrderInfo(cookieArr[i], orderid.data);
+            if (PIN === -1) {
+              if (!fs.existsSync(filePath)) {
+                writeJSONFile(filePath, []);
+              }
+              let accounts = readJSONFile(filePath) || [];
+              let smzdmid = cookieArr[i].split(/smzdm_id=(.+?);/)[1];
+              modifyAccount(accounts, smzdmid, "add", orderid.data);
+              writeJSONFile(filePath, accounts);
+              log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid.data)}] 状态[订单审核中...]`);
+            } else {
+              log(`账号[${i + 1}]兑换成功: 卡密[${PIN}]`);
+            }
           }
+        } else {
+          log(`账号[${i + 1}] 碎银不足`);
         }
-      } else {
-        log(`账号[${i + 1}] 碎银不足`);
       }
     }
   } else {
