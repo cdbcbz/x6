@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-20 06:57:13
+ @LastEditTime: 2023-06-22 21:20:02
  cron:59 59 7,9,15 * * *
  */
 
@@ -100,70 +100,33 @@ async function run() {
     }
   } else {
     log(`${zhekouPath} 不存在！开始爬取数据。`);
-    let number = 800433;
+    let number = 800400;
     let zhekouarr = [];
+    let notFoundCount = 0; // 记录连续的 404 响应次数
     for (let j = 0; j < 300; j++) {
       let DuihuanInfo = await getzhekouInfo(cookieArr[0], number + j);
       if (DuihuanInfo.statusCode === 404) {
-        break;
-      }
-      var data = JSON.parse(DuihuanInfo.body);
-      if (data.error_code !== 0) {
-        continue;
-      }
-      if (data.data.good_title.includes("折兑换】京东商城电子礼品卡")) {
-        zhekouarr.push(data.data.spu_id);
-        log(`${data.data.sku_list[0].sku_name},兑换时间:${data.data.start_time}`);
+        notFoundCount++;
+        if (notFoundCount >= 10) {
+          // 连续 10 次 404 响应，终止循环
+          break;
+        }
+      } else {
+        notFoundCount = 0; // 重置连续 404 响应次数
+        var data = JSON.parse(DuihuanInfo.body);
+        if (data.error_code !== 0) {
+          continue;
+        }
+        if (data.data.good_title.includes("京东商城电子礼品卡") && data.data.silver !== 0) {
+          zhekouarr.push(data.data.spu_id);
+          log(`${data.data.sku_list[0].sku_name},碎银:${data.data.silver},兑换时间:${data.data.start_time}`);
+        }
       }
     }
     writeJSONFile(zhekouPath, zhekouarr);
   }
 }
 
-async function getDuihuanList(cookie) {
-  const request = {
-    url: "https://zhiyou.m.smzdm.com/user/vip/ajax_limit_duihuan_list",
-    headers: {
-      Host: "zhiyou.m.smzdm.com",
-      Connection: "keep-alive",
-      "Content-Length": 0,
-      Accept: "application/json, text/plain, */*",
-      "User-Agent": "smzdm_android_V10.4.26 rv:866 (Redmi Note 3;Android10.0;zh)smzdmapp",
-      "Content-Type": "application/x-www-form-urlencoded",
-      Origin: "https://zhiyou.m.smzdm.com",
-      "X-Requested-With": "com.smzdm.client.android",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Dest": "empty",
-      Referer:
-        "https://zhiyou.m.smzdm.com/user/vip?type=0&,zdm_feature=%7B%22sm%22%3A1%2C%22ns%22%3A1%2C%22dc%22%3A%22%2300ffffff%22%2C%22fs%22%3A1%7",
-      "Accept-Encoding": "gzip, deflate",
-      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-      Cookie: cookie,
-    },
-    body: ``,
-  };
-
-  try {
-    let response = await Post(request);
-    let data = response.data;
-    let nowSessions = data.now_sessions;
-    if (nowSessions.length > 0) {
-      let list = data.duihuan_list[0];
-      let filteredData = list.filter((item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword));
-      if (filteredData.length > 0) {
-        let sortedData = filteredData.sort((a, b) => b.silver - a.silver);
-        return sortedData;
-      } else {
-        return -1;
-      }
-    } else {
-      return 0;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
 async function getUserSilver(cookie) {
   let newData = {
     weixin: 1,
@@ -252,39 +215,7 @@ async function getzhekouInfo(cookie, id) {
     console.error("Error:", error);
   }
 }
-async function getDuihuanInfo(cookie, id) {
-  const request = {
-    url: `https://zhiyou.m.smzdm.com/duihuan/good/ajax_get_info?spu_id=${id}&time=1684381886681`,
-    headers: {
-      Host: "zhiyou.m.smzdm.com",
-      Connection: "keep-alive",
-      "Content-Length": 0,
-      Accept: "application/json, text/plain, */*",
-      "User-Agent": "smzdm_android_V10.4.26 rv:866 (Redmi Note 3;Android10.0;zh)smzdmapp",
-      "Content-Type": "application/x-www-form-urlencoded",
-      Origin: "https://zhiyou.m.smzdm.com",
-      "X-Requested-With": "com.smzdm.client.android",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Dest": "empty",
-      Referer:
-        "https://zhiyou.m.smzdm.com/user/vip?type=0&,zdm_feature=%7B%22sm%22%3A1%2C%22ns%22%3A1%2C%22dc%22%3A%22%2300ffffff%22%2C%22fs%22%3A1%7",
-      "Accept-Encoding": "gzip, deflate",
-      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-      Cookie: cookie,
-    },
-  };
-  try {
-    let response = await Get(request);
-    if (response.data.pickup_total < response.data.price_total_num) {
-      return response;
-    } else {
-      return -1;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
+
 async function exchangeGiftCard(cookie, obj) {
   if (!cookie.split(/en_safepass=(.+?);/)[1]) {
     return { code: -1, msg: "缺少en_safepass参数", data: null };
@@ -423,17 +354,7 @@ function objectToUrlParams(obj) {
     .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
     .join("&");
 }
-function findBestduihuanList(list, mysilver) {
-  let closestArr = null;
-  for (let arr of list) {
-    if (arr.silver <= mysilver) {
-      if (!closestArr || arr.silver > closestArr.silver) {
-        closestArr = arr;
-      }
-    }
-  }
-  return closestArr;
-}
+
 function log(message) {
   let currentTime = new Date().toLocaleTimeString();
   $.log(`[${currentTime}] ${message}`);
