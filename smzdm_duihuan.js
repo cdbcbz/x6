@@ -1,25 +1,30 @@
 /*
- @Author: x6
- @Date: 2023-05-20 09:45:07
- @LastEditTime: 2023-06-17 09:34:35
+ @Author: DP-12
+ @Date: 2023-06-17 09:28:17
+ @LastEditTime: 2023-06-22 21:37:02
+ cron:59 59 6,9 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
  TG交流群:https://t.me/smzdm_script
- cron:0 10 * * *
  安全码获取方式 在设置-账号与安全 重新设置安全码 需要抓https://h5.smzdm.com/user/safepass/ajax_update_safepass这个链接的请求体 里面有en_safepass参数
  获取到en_safepass参数后添加到cookie中 格式为 cookie+en_safepass=xxxxx; 注意是拼接
  */
+
 const Env = require("./common/Env");
-const $ = new Env("什么值得买_限时兑换");
+const $ = new Env("什么值得买_兑换");
 const crypto = require("crypto");
 const fs = require("fs");
-const version = "1.0.4";
+const version = "1.0.0";
 const filePath = "orders.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
 const Notify = require("./sendNotify");
 const Isnotify = ($.isNode() ? process.env.isnotify : $.getdata("isnotify")) || "true"; //是否开启推送 false关闭 true开启
-const Keyword = ($.isNode() ? process.env.keyword : $.getdata("keyword")) || "京东"; //礼品卡关键词  京东/天猫
+const currentDate = new Date();
+const year = currentDate.getFullYear();
+const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+const day = String(currentDate.getDate()).padStart(2, "0");
+const zhekouPath = `zhekou-${year}${month}${day}.json`;
 let msg = "";
 
 !(async () => {
@@ -39,108 +44,98 @@ async function run() {
   }
   const cookieArr = cookie.split("&");
   log(`当前共有${cookieArr.length}个账号`);
-  let DuihuanList = await getDuihuanList(cookieArr[0]);
-
-  if (DuihuanList === -1) {
-    log(`今日无${Keyword}礼品卡兑换！`);
-  } else if (DuihuanList === 0) {
-    log("今日无兑换活动！");
-  } else {
-    log("可兑换商品列表:");
-    for (let item of DuihuanList) {
-      log("商品名称:" + item.coupon_short_title);
-      log("所需碎银:" + item.silver);
+  if (fs.existsSync(zhekouPath)) {
+    let spuId = readJSONFile(zhekouPath) || [];
+    let data = null;
+    let foundMatchingDate = false;
+    var giftList = "\n";
+    for (let i = 0; i < spuId.length; i++) {
+      let DuihuanInfo = await getzhekouInfo(cookieArr[0], spuId[i]);
+      data = JSON.parse(DuihuanInfo.body);
+      var startDateTime = new Date(data.data.start_time);
+      var today = new Date();
+      today.setHours(10, 0, 0, 0);
+      giftList += `${data.data.sku_list[0].sku_name},兑换时间:${data.data.start_time}\n`;
+      if (startDateTime.getTime() === today.getTime()) {
+        log(`兑换时间:${data.data.start_time}`);
+        foundMatchingDate = true;
+        break;
+      }
     }
-    for (let i = 0; i < cookieArr.length; i++) {
-      let userSilver = await getUserSilver(cookieArr[i]);
-      log(`账号[${i + 1}] 碎银余额: [${userSilver}]`);
-      let bestDuihuan = findBestduihuanList(DuihuanList, userSilver);
-      if (bestDuihuan === null) {
-        log(`账号[${i + 1}] Error: 碎银数量不足，无法兑换商品！`);
-      } else {
-        let DuihuanInfo = await getDuihuanInfo(cookieArr[i], bestDuihuan.id);
-        if (DuihuanInfo === -1) {
-          log(`账号[${i + 1}] Error: [${bestDuihuan.coupon_short_title}]库存数量不足，无法兑换！`);
-        } else {
-          log(
-            `账号[${i + 1}] 正在兑换: [${bestDuihuan.coupon_short_title}]库存:${
-              DuihuanInfo.data.price_total_num - DuihuanInfo.data.pickup_total
-            }`
-          );
+
+    if (!foundMatchingDate) {
+      // 执行未找到满足条件的日期的逻辑
+      log("当前无兑换礼品，兑换列表:\n");
+      log(giftList);
+    } else {
+      for (let i = 0; i < cookieArr.length; i++) {
+        let userSilver = await getUserSilver(cookieArr[i]);
+        log(`账号[${i + 1}] 碎银余额: [${userSilver}]`);
+        if (userSilver >= data.data.sku_list[0].specs_price[0].deduct_price) {
+          log(`账号[${i + 1}] 正在兑换: ${data.data.sku_list[0].sku_name}`);
 
           let orderid = await exchangeGiftCard(cookieArr[i], [
-            DuihuanInfo.data.sku_list[0].specs_price[0].sku_id,
-            DuihuanInfo.data.sku_list[0].specs_price[0].spu_id,
-            DuihuanInfo.data.sku_list[0].specs_price[0].id,
+            data.data.sku_list[0].specs_price[0].sku_id,
+            data.data.sku_list[0].specs_price[0].spu_id,
+            data.data.sku_list[0].specs_price[0].id,
           ]);
-          if (orderid === -1) {
-            log(`账号[${i + 1}]兑换失败: 缺少en_safepass参数`);
-          } else if (orderid === -2) {
-            log(`账号[${i + 1}]兑换失败: 无效的订单号`);
+          if (orderid.code === -1) {
+            log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
+          } else if (orderid.code === -2) {
+            log(`账号[${i + 1}]兑换失败: ${orderid.msg}`);
           } else {
-            let PIN = await getOrderInfo(cookieArr[i], orderid);
+            let PIN = await getOrderInfo(cookieArr[i], orderid.data);
             if (PIN === -1) {
               if (!fs.existsSync(filePath)) {
                 writeJSONFile(filePath, []);
               }
               let accounts = readJSONFile(filePath) || [];
               let smzdmid = cookieArr[i].split(/smzdm_id=(.+?);/)[1];
-              modifyAccount(accounts, smzdmid, "add", orderid);
+              modifyAccount(accounts, smzdmid, "add", orderid.data);
               writeJSONFile(filePath, accounts);
-              log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid)}] 状态[订单审核中...]`);
+              log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid.data)}] 状态[订单审核中...]`);
             } else {
               log(`账号[${i + 1}]兑换成功: 卡密[${PIN}]`);
             }
           }
+        } else {
+          log(`账号[${i + 1}] 碎银不足`);
         }
       }
     }
-  }
-}
-async function getDuihuanList(cookie) {
-  const request = {
-    url: "https://zhiyou.m.smzdm.com/user/vip/ajax_limit_duihuan_list",
-    headers: {
-      Host: "zhiyou.m.smzdm.com",
-      Connection: "keep-alive",
-      "Content-Length": 0,
-      Accept: "application/json, text/plain, */*",
-      "User-Agent": "smzdm_android_V10.4.26 rv:866 (Redmi Note 3;Android10.0;zh)smzdmapp",
-      "Content-Type": "application/x-www-form-urlencoded",
-      Origin: "https://zhiyou.m.smzdm.com",
-      "X-Requested-With": "com.smzdm.client.android",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Dest": "empty",
-      Referer:
-        "https://zhiyou.m.smzdm.com/user/vip?type=0&,zdm_feature=%7B%22sm%22%3A1%2C%22ns%22%3A1%2C%22dc%22%3A%22%2300ffffff%22%2C%22fs%22%3A1%7",
-      "Accept-Encoding": "gzip, deflate",
-      "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
-      Cookie: cookie,
-    },
-    body: ``,
-  };
-
-  try {
-    let response = await Post(request);
-    let data = response.data;
-    let nowSessions = data.now_sessions;
-    if (nowSessions.length > 0) {
-      let list = data.duihuan_list[0];
-      let filteredData = list.filter((item) => item.silver !== 0 && item.coupon_short_title.includes(Keyword));
-      if (filteredData.length > 0) {
-        let sortedData = filteredData.sort((a, b) => b.silver - a.silver);
-        return sortedData;
+  } else {
+    log(`${zhekouPath} 不存在！开始爬取数据。`);
+    let number = 800400;
+    let zhekouarr = [];
+    let notFoundCount = 0; // 记录连续的 404 响应次数
+    for (let j = 0; j < 300; j++) {
+      let DuihuanInfo = await getzhekouInfo(cookieArr[0], number + j);
+      if (DuihuanInfo.statusCode === 404) {
+        notFoundCount++;
+        if (notFoundCount >= 10) {
+          // 连续 10 次 404 响应，终止循环
+          break;
+        }
       } else {
-        return -1;
+        notFoundCount = 0; // 重置连续 404 响应次数
+        var data = JSON.parse(DuihuanInfo.body);
+        if (data.error_code !== 0) {
+          continue;
+        }
+        if (
+          data.data.good_title.includes("京东商城电子礼品卡") &&
+          data.data.silver !== 0 &&
+          data.data.start_time.includes(year)
+        ) {
+          zhekouarr.push(data.data.spu_id);
+          log(`${data.data.sku_list[0].sku_name},碎银:${data.data.silver},兑换时间:${data.data.start_time}`);
+        }
       }
-    } else {
-      return 0;
     }
-  } catch (error) {
-    console.error("Error:", error);
+    writeJSONFile(zhekouPath, zhekouarr);
   }
 }
+
 async function getUserSilver(cookie) {
   let newData = {
     weixin: 1,
@@ -178,7 +173,7 @@ async function getUserSilver(cookie) {
     console.log("Error:", error);
   }
 }
-async function getDuihuanInfo(cookie, id) {
+async function getzhekouInfo(cookie, id) {
   const request = {
     url: `https://zhiyou.m.smzdm.com/duihuan/good/ajax_get_info?spu_id=${id}&time=1684381886681`,
     headers: {
@@ -200,20 +195,39 @@ async function getDuihuanInfo(cookie, id) {
       Cookie: cookie,
     },
   };
+  async function Get(request) {
+    return new Promise((resolve) => {
+      $.get(request, async (error, response) => {
+        if (error) {
+          console.error("网络错误:", error);
+          resolve(new Error("网络错误"));
+        } else {
+          try {
+            if (response) {
+              resolve(response);
+            } else {
+              console.error("响应数据为空");
+              resolve(new Error("响应数据为空"));
+            }
+          } catch (e) {
+            console.error("解析错误:", e);
+            resolve(new Error("解析错误"));
+          }
+        }
+      });
+    });
+  }
   try {
     let response = await Get(request);
-    if (response.data.pickup_total < response.data.price_total_num) {
-      return response;
-    } else {
-      return -1;
-    }
+    return response;
   } catch (error) {
     console.error("Error:", error);
   }
 }
+
 async function exchangeGiftCard(cookie, obj) {
   if (!cookie.split(/en_safepass=(.+?);/)[1]) {
-    return -1;
+    return { code: -1, msg: "缺少en_safepass参数", data: null };
   }
   let newData = {
     buy_num: 1,
@@ -245,9 +259,9 @@ async function exchangeGiftCard(cookie, obj) {
   try {
     let response = await Post(request);
     if (response && response.data) {
-      return response.data.order_no;
+      return { code: response.error_code, msg: response.error_msg, data: response.data.order_no };
     } else {
-      return -2;
+      return { code: -2, msg: response.error_msg, data: null };
     }
   } catch (error) {
     console.log("Error:", error);
@@ -349,17 +363,7 @@ function objectToUrlParams(obj) {
     .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
     .join("&");
 }
-function findBestduihuanList(list, mysilver) {
-  let closestArr = null;
-  for (let arr of list) {
-    if (arr.silver <= mysilver) {
-      if (!closestArr || arr.silver > closestArr.silver) {
-        closestArr = arr;
-      }
-    }
-  }
-  return closestArr;
-}
+
 function log(message) {
   let currentTime = new Date().toLocaleTimeString();
   $.log(`[${currentTime}] ${message}`);
