@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-22 21:37:02
+ @LastEditTime: 2023-06-22 22:21:11
  cron:59 59 6,9 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -24,7 +24,7 @@ const currentDate = new Date();
 const year = currentDate.getFullYear();
 const month = String(currentDate.getMonth() + 1).padStart(2, "0");
 const day = String(currentDate.getDate()).padStart(2, "0");
-const zhekouPath = `zhekou-${year}${month}${day}.json`;
+const duihuanPath = `duihuan-${year}${month}${day}.json`;
 let msg = "";
 
 !(async () => {
@@ -44,13 +44,13 @@ async function run() {
   }
   const cookieArr = cookie.split("&");
   log(`当前共有${cookieArr.length}个账号`);
-  if (fs.existsSync(zhekouPath)) {
-    let spuId = readJSONFile(zhekouPath) || [];
+  if (fs.existsSync(duihuanPath)) {
+    let spuId = readJSONFile(duihuanPath) || [];
     let data = null;
     let foundMatchingDate = false;
     var giftList = "\n";
     for (let i = 0; i < spuId.length; i++) {
-      let DuihuanInfo = await getzhekouInfo(cookieArr[0], spuId[i]);
+      let DuihuanInfo = await getduihuanInfo(cookieArr[0], spuId[i]);
       data = JSON.parse(DuihuanInfo.body);
       var startDateTime = new Date(data.data.start_time);
       var today = new Date();
@@ -104,12 +104,12 @@ async function run() {
       }
     }
   } else {
-    log(`${zhekouPath} 不存在！开始爬取数据。`);
+    log(`${duihuanPath} 不存在！开始爬取数据。`);
     let number = 800400;
-    let zhekouarr = [];
+    let duihuanarr = [];
     let notFoundCount = 0; // 记录连续的 404 响应次数
     for (let j = 0; j < 300; j++) {
-      let DuihuanInfo = await getzhekouInfo(cookieArr[0], number + j);
+      let DuihuanInfo = await getduihuanInfo(cookieArr[0], number + j);
       if (DuihuanInfo.statusCode === 404) {
         notFoundCount++;
         if (notFoundCount >= 10) {
@@ -127,12 +127,12 @@ async function run() {
           data.data.silver !== 0 &&
           data.data.start_time.includes(year)
         ) {
-          zhekouarr.push(data.data.spu_id);
+          duihuanarr.push(data.data.spu_id);
           log(`${data.data.sku_list[0].sku_name},碎银:${data.data.silver},兑换时间:${data.data.start_time}`);
         }
       }
     }
-    writeJSONFile(zhekouPath, zhekouarr);
+    writeJSONFile(duihuanPath, duihuanarr);
   }
 }
 
@@ -173,7 +173,7 @@ async function getUserSilver(cookie) {
     console.log("Error:", error);
   }
 }
-async function getzhekouInfo(cookie, id) {
+async function getduihuanInfo(cookie, id) {
   const request = {
     url: `https://zhiyou.m.smzdm.com/duihuan/good/ajax_get_info?spu_id=${id}&time=1684381886681`,
     headers: {
