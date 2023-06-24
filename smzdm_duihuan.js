@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-22 22:21:11
+ @LastEditTime: 2023-06-24 22:01:12
  cron:59 59 6,9 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -125,14 +125,19 @@ async function run() {
         if (
           data.data.good_title.includes("京东商城电子礼品卡") &&
           data.data.silver !== 0 &&
-          data.data.start_time.includes(year)
+          data.data.start_time.includes(year + "-" + month + "-" + day) &&
+          !data.data.good_title.includes("免费兑换")
         ) {
           duihuanarr.push(data.data.spu_id);
           log(`${data.data.sku_list[0].sku_name},碎银:${data.data.silver},兑换时间:${data.data.start_time}`);
         }
       }
     }
-    writeJSONFile(duihuanPath, duihuanarr);
+    if (duihuanarr.length === 0) {
+      log(`今天没有E卡兑换哦！`);
+    } else {
+      writeJSONFile(duihuanPath, duihuanarr);
+    }
   }
 }
 
