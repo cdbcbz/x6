@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-24 22:01:12
+ @LastEditTime: 2023-06-24 22:02:37
  cron:59 59 6,9 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -14,7 +14,7 @@ const Env = require("./common/Env");
 const $ = new Env("什么值得买_兑换");
 const crypto = require("crypto");
 const fs = require("fs");
-const version = "1.0.0";
+const version = "1.0.1";
 const filePath = "orders.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
