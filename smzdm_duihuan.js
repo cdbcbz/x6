@@ -1,13 +1,13 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-06-24 22:02:37
- cron:59 59 6,9 * * *
+ @LastEditTime: 2023-08-10 09:55:13
+ cron:05 0 9,10 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
  TG交流群:https://t.me/smzdm_script
  安全码获取方式 在设置-账号与安全 重新设置安全码 需要抓https://h5.smzdm.com/user/safepass/ajax_update_safepass这个链接的请求体 里面有en_safepass参数
- 获取到en_safepass参数后添加到cookie中 格式为 cookie+en_safepass=xxxxx; 注意是拼接
+ 获取到en_safepass参数后添加到cookie中 格式为 cookie+en_safepass=xxxxx; 
  */
 
 const Env = require("./common/Env");
