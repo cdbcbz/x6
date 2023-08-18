@@ -1,7 +1,7 @@
 /*
  @Author: DP-12
  @Date: 2023-06-17 09:28:17
- @LastEditTime: 2023-08-10 09:55:13
+ @LastEditTime: 2023-08-18 22:17:48
  cron:05 0 9,10 * * *
  @github: https://github.com/fwktls/x6
  部分代码抄的hex https://github.com/hex-ci/smzdm_script.git
@@ -14,12 +14,13 @@ const Env = require("./common/Env");
 const $ = new Env("什么值得买_兑换");
 const crypto = require("crypto");
 const fs = require("fs");
-const version = "1.0.1";
+const version = "1.0.2";
 const filePath = "orders.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
 const Notify = require("./sendNotify");
 const Isnotify = ($.isNode() ? process.env.isnotify : $.getdata("isnotify")) || "true"; //是否开启推送 false关闭 true开启
+const Giftkey = ($.isNode() ? process.env.giftkey : $.getdata("giftkey")) || "8"; //兑换的金额
 const currentDate = new Date();
 const year = currentDate.getFullYear();
 const month = String(currentDate.getMonth() + 1).padStart(2, "0");
@@ -123,7 +124,7 @@ async function run() {
           continue;
         }
         if (
-          data.data.good_title.includes("京东商城电子礼品卡") &&
+          data.data.good_title.includes("京东商城电子礼品卡" + Giftkey) &&
           data.data.silver !== 0 &&
           data.data.start_time.includes(year + "-" + month + "-" + day) &&
           !data.data.good_title.includes("免费兑换")
