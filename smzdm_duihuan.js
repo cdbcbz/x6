@@ -106,10 +106,10 @@ async function run() {
     }
   } else {
     log(`${duihuanPath} 不存在！开始爬取数据。`);
-    let number = 800400;
+    let number = 800300;
     let duihuanarr = [];
     let notFoundCount = 0; // 记录连续的 404 响应次数
-    for (let j = 0; j < 300; j++) {
+    for (let j = 0; j < 900; j++) {
       let DuihuanInfo = await getduihuanInfo(cookieArr[0], number + j);
       if (DuihuanInfo.statusCode === 404) {
         notFoundCount++;
