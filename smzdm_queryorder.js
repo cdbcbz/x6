@@ -9,6 +9,7 @@
 const Env = require("./common/Env");
 const $ = new Env("什么值得买_订单查询");
 const fs = require("fs");
+const mysql = require('mysql2');
 const version = "1.0.1";
 const filePath = "orders.json";
 const cookie = ($.isNode() ? process.env.SMZDM_COOKIE : $.getdata("SMZDM_COOKIE")) || ``;
@@ -37,7 +38,7 @@ async function run() {
 
   const cookieArr = cookie.split("&");
   log(`当前共有${cookieArr.length}个账号`);
-
+  
   let accounts = readJSONFile(filePath) || [];
 
   for (let i = 0; i < cookieArr.length; i++) {
@@ -53,6 +54,20 @@ async function run() {
           log(`账号[${i + 1}] 订单[${maskOrderNumber(orders[j])}] 状态：订单审核中`);
         } else {
           log(`账号[${i + 1}] 订单[${maskOrderNumber(orders[j])}] 状态：兑换成功，卡密：[${orderInfo}]`);
+          const db = mysql.createConnection({
+                host: '117.72.15.164', // 例如：localhost
+                user: 'zyhroot',
+                password: '123456',
+                database: 'zyhroot',
+                });
+                db.query('INSERT INTO jd (卡密) VALUES (?)', [orderInfo], (err, results) => {
+                    if (err) {
+                        console.error('插入数据时出错：', err);
+                        return;
+                    }
+                    console.log('成功插入卡密到数据库');
+                    });
+                db.end();
           modifyAccount(accounts, smzdmid, "delete", orders[j]);
           writeJSONFile(filePath, accounts);
         }
